@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("customer")
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id       String            @id @default(cuid())
+  name     String            @unique
+  slug     String            @unique
+  products ProductCategory[]
+}
+
+model Product {
+  id            String            @id @default(cuid())
+  title         String
+  slug          String            @unique
+  description   String            @default("")
+  imageUrl      String
+  oldPrice      Float
+  newPrice      Float
+  discountBadge String
+  isFeatured    Boolean           @default(false)
+  isPopular     Boolean           @default(false)
+  downloadUrl   String            @default("")
+  categories    ProductCategory[]
+  orderItems    OrderItem[]
+  createdAt     DateTime          @default(now())
+}
+
+model ProductCategory {
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+
+  @@id([productId, categoryId])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  user           User        @relation(fields: [userId], references: [id])
+  userId         String
+  totalAmount    Float
+  payerName      String
+  email          String      @default("")
+  orderNotes     String      @default("")
+  bankHolderName String      @default("")
+  transactionId  String
+  status         String      @default("pending")
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  price     Float
+}
+
+model Settings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model CourseRequest {
+  id         String   @id @default(cuid())
+  name       String
+  email      String
+  courseName String
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+}
