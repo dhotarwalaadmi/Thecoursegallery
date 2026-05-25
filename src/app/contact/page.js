@@ -27,12 +27,12 @@ export default function ContactPage() {
 
         <p className="contact-info">
           <strong>Mail us : </strong>
-          <a href="mailto:thecoursegallery96@gmail.com" className="text-link">thecoursegallery96@gmail.com</a>
+          <a href="mailto:vikasrathi90112@gmail.com" className="text-link">vikasrathi90112@gmail.com</a>
         </p>
 
         <p className="contact-info">
           <strong>Telegram: </strong>
-          <a href="https://t.me/TheCourseGalleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">@TheCourseGalleryOfficial</a>
+          <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">@TheCourseGaleryOfficial</a>
         </p>
 
         <p className="contact-address">

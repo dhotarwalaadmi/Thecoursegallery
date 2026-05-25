@@ -30,7 +30,7 @@ export default function HowToDownloadPage() {
         </p>
 
         <p className="info-text-telegram-handle">
-          Telegram: <a href="https://t.me/Thecoursegalleryofficial" target="_blank" rel="noopener noreferrer" className="text-link">@Thecoursegalleryofficial</a>
+          Telegram: <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">@TheCourseGaleryOfficial</a>
         </p>
 
         <p className="info-text-warning">

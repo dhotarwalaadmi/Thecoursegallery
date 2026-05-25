@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
@@ -14,7 +13,6 @@ import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 
 export default function CheckoutPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const { cart, cartTotal, clearCart } = useCart();
   const { formatPrice } = useCurrency();
@@ -42,20 +40,41 @@ export default function CheckoutPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login?callbackUrl=/checkout');
-    }
-  }, [status, router]);
+  const [couponCode, setCouponCode] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
-  useEffect(() => {
-    if (session?.user?.email) {
-      setEmail(session.user.email);
+  const finalTotal = discountPercent > 0 ? cartTotal * (1 - discountPercent / 100) : cartTotal;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError('');
+    setCouponSuccess('');
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDiscountPercent(data.discountPercent);
+        setCouponSuccess(`Discount Applied 🎉 (${data.discountPercent}%)`);
+      } else {
+        setCouponError(data.error || 'Invalid coupon');
+        setDiscountPercent(0);
+      }
+    } catch (e) {
+      setCouponError('Failed to validate coupon');
+      setDiscountPercent(0);
     }
-    if (session?.user?.name) {
-      setFirstName(session.user.name);
-    }
-  }, [session]);
+    setValidatingCoupon(false);
+  };
+
+
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -67,8 +86,8 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (cartTotal > 0 && upiId) {
-      const upiUrl = `upi://pay?pa=${upiId}&pn=The Course Gallery&am=${cartTotal}&cu=INR&tn=Course Purchase`;
+    if (finalTotal > 0 && upiId) {
+      const upiUrl = `upi://pay?pa=${upiId}&pn=The Course Gallery&am=${finalTotal}&cu=INR&tn=Course Purchase`;
       QRCode.toDataURL(upiUrl, { width: 250, margin: 2 })
         .then(url => setQrCodeUrl(url))
         .catch(err => console.error('QR generation failed:', err));
@@ -112,7 +131,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: cart,
-          totalAmount: cartTotal,
+          totalAmount: finalTotal,
           payerName: firstName.trim(),
           email: email.trim(),
           orderNotes: orderNotes.trim(),
@@ -157,8 +176,13 @@ export default function CheckoutPage() {
           <div className="success-message">
             <div className="success-icon">✓</div>
             <h2 style={{ marginBottom: '10px' }}>Order Submitted!</h2>
-            <p style={{ color: '#666', marginBottom: '20px' }}>Your order has been placed and is pending approval. We will verify your payment and grant access to your courses soon.</p>
-            <button className="btn-auth" onClick={() => router.push('/my-orders')} style={{ maxWidth: '300px', margin: '0 auto' }}>View My Orders</button>
+            <p style={{ color: '#666', marginBottom: '20px' }}>Thank you for your purchase. Please contact us on Telegram to receive your course access.</p>
+            <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="btn-auth" style={{ display: 'inline-block', maxWidth: '300px', margin: '0 auto', textAlign: 'center', background: '#2AABEE' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" style={{ fill: 'white', marginRight: '8px', verticalAlign: 'middle' }}>
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
+              </svg>
+              Contact Us on Telegram
+            </a>
           </div>
         </div>
         <Footer />
@@ -176,7 +200,7 @@ export default function CheckoutPage() {
       <div className="checkout-notice">
         <h3>For Payment Related Issues?</h3>
         <p>Contact Us On Telegram <strong>Paypal, Crypto, Or Credit/Debit Card</strong> Also Accepted With Us.</p>
-        <a href="https://t.me/TheCourseGalleryOfficial" target="_blank" rel="noopener noreferrer" className="checkout-notice-link">Click Here To Contact Us On Telegram</a>
+        <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="checkout-notice-link">Click Here To Contact Us On Telegram</a>
       </div>
 
       {/* Progress Steps */}
@@ -279,10 +303,34 @@ export default function CheckoutPage() {
                   <span>Subtotal</span>
                   <span>{formatPrice(cartTotal)}</span>
                 </div>
+                {discountPercent > 0 && (
+                  <div className="checkout-total-row" style={{ color: '#28a745' }}>
+                    <span>Discount ({discountPercent}%)</span>
+                    <span>-{formatPrice(cartTotal * (discountPercent / 100))}</span>
+                  </div>
+                )}
                 <div className="checkout-total-row checkout-total-final">
                   <span>Total</span>
-                  <span>{formatPrice(cartTotal)}</span>
+                  <span>{formatPrice(finalTotal)}</span>
                 </div>
+              </div>
+
+              {/* Coupon Input */}
+              <div style={{ marginTop: '20px', marginBottom: '20px', padding: '15px', background: '#f8f9fa', border: '1px dashed #ccc', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Coupon Code" 
+                    value={couponCode} 
+                    onChange={(e) => setCouponCode(e.target.value)} 
+                    style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                  />
+                  <button type="button" onClick={handleApplyCoupon} disabled={validatingCoupon} style={{ padding: '0 20px', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    {validatingCoupon ? '...' : 'Apply'}
+                  </button>
+                </div>
+                {couponError && <div style={{ color: '#dc3545', marginTop: '10px', fontSize: '14px' }}>{couponError}</div>}
+                {couponSuccess && <div style={{ color: '#28a745', marginTop: '10px', fontSize: '14px' }}>{couponSuccess}</div>}
               </div>
 
               {/* Payment Methods */}
@@ -350,7 +398,7 @@ export default function CheckoutPage() {
               ) : (
                 <p>Generating QR code...</p>
               )}
-              <div className="pay-popup-amount">{formatPrice(cartTotal)}</div>
+              <div className="pay-popup-amount">{formatPrice(finalTotal)}</div>
               <p className="pay-popup-upi">UPI ID: <strong>{upiId}</strong></p>
             </div>
 

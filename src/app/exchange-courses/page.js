@@ -27,7 +27,7 @@ export default function ExchangeCoursesPage() {
 
         <p>
           Do you have any exclusive, unreleased courses that you&apos;ve purchased and want to exchange them for a new course from us? If so, we invite you to contact us on{' '}
-          <a href="https://t.me/TheCourseGalleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">Telegram</a> for a mutually beneficial exchange.
+          <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">Telegram</a> for a mutually beneficial exchange.
         </p>
 
         <h2>Here&apos;s how it works</h2>
@@ -43,11 +43,11 @@ export default function ExchangeCoursesPage() {
 
         <p>
           We are committed to maintaining the integrity and exclusivity of our content, and we appreciate your cooperation in this exchange process. For more details and to initiate an exchange, please reach out to us on{' '}
-          <a href="https://t.me/TheCourseGalleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">Telegram</a>.
+          <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="text-link">Telegram</a>.
         </p>
 
         <h2 className="telegram-cta">
-          <a href="https://t.me/TheCourseGalleryOfficial" target="_blank" rel="noopener noreferrer">
+          <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer">
             CLICK HERE TO CONTACT US ON TELEGRAM
           </a>
         </h2>

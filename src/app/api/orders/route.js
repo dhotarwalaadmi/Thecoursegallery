@@ -6,11 +6,12 @@ import { authOptions } from '@/lib/auth';
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Please login first' }, { status: 401 });
+    let userId = null;
+    if (session?.user?.id) {
+      userId = session.user.id;
     }
 
-    const { items, totalAmount, payerName, email, orderNotes, bankHolderName, transactionId } = await request.json();
+    const { items, totalAmount, payerName, email, orderNotes, bankHolderName, transactionId, couponCode } = await request.json();
 
     if (!items?.length || !totalAmount || !payerName || !transactionId) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
@@ -18,7 +19,7 @@ export async function POST(request) {
 
     const order = await prisma.order.create({
       data: {
-        userId: session.user.id,
+        userId,
         totalAmount,
         payerName,
         email: email || '',
@@ -37,6 +38,13 @@ export async function POST(request) {
         items: { include: { product: true } },
       },
     });
+
+    if (couponCode) {
+      await prisma.coupon.update({
+        where: { code: couponCode },
+        data: { usedCount: { increment: 1 } },
+      }).catch(e => console.error('Failed to increment coupon count:', e));
+    }
 
     return NextResponse.json(order);
   } catch (error) {

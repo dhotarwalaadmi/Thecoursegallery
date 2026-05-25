@@ -4,7 +4,7 @@ import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 
 export default function ProductCard({ product }) {
-  const { addToCart } = useCart();
+  const { addToCart, openCart } = useCart();
   const { formatPrice } = useCurrency();
 
   const categoryText = product.categories?.map(c => c.name || c).join(', ') || '';
@@ -20,6 +20,7 @@ export default function ProductCard({ product }) {
       oldPrice: product.oldPrice,
       newPrice: product.newPrice,
     });
+    openCart();
   };
 
   return (

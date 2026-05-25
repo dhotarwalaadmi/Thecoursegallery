@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 
@@ -27,6 +27,10 @@ const cartReducer = (state, action) => {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('cart');
@@ -57,7 +61,10 @@ export function CartProvider({ children }) {
   const cartTotal = state.items.reduce((sum, item) => sum + item.newPrice * item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart: state.items, addToCart, removeFromCart, clearCart, cartCount, cartTotal }}>
+    <CartContext.Provider value={{ 
+      cart: state.items, addToCart, removeFromCart, clearCart, cartCount, cartTotal,
+      isCartOpen, openCart, closeCart 
+    }}>
       {children}
     </CartContext.Provider>
   );
