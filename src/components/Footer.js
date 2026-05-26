@@ -11,7 +11,13 @@ export default function Footer() {
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <path d="M22 6l-10 7L2 6"/>
           </svg>
-          vikasrathi90112@gmail.com
+          <a href="mailto:vikasrathi90112@gmail.com" style={{ color: 'white', textDecoration: 'none' }}>vikasrathi90112@gmail.com</a>
+        </div>
+        <div className="footer-contact" style={{ marginTop: '8px' }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" strokeWidth="1.5" style={{ fill: 'none', stroke: 'white', strokeWidth: '1.5' }}>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15.75-3.02 12.87-3.02 12.87-.15.6-.45.75-.9.75-.45 0-1.05-.3-1.65-.75l-2.72-2.02-1.31 1.27c-.12.12-.32.22-.54.22-.01 0-.01 0-.02 0l.19-2.77 5.04-4.56c.22-.2-.05-.3-.34-.11L6.23 13.2l-2.69-.84c-.58-.18-.6-.58.12-.86l10.51-4.05c.49-.18.91.12.77.85z" fill="white" stroke="none"/>
+          </svg>
+          <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'none' }}>@TheCourseGaleryOfficial</a>
         </div>
 
         <h3 className="footer-heading">What Our Customer Said</h3>
@@ -34,6 +40,15 @@ export default function Footer() {
           </div>
           <div className="payment-box">
             <svg width="40" height="24" viewBox="0 0 40 24"><rect width="40" height="24" rx="3" fill="#002970"/><text x="20" y="16" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold">Paytm</text></svg>
+          </div>
+          <div className="payment-box" title="Bitcoin">
+            <svg width="40" height="24" viewBox="0 0 40 24"><rect width="40" height="24" rx="3" fill="#f7931a"/><text x="20" y="15" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">BTC</text></svg>
+          </div>
+          <div className="payment-box" title="Ethereum">
+            <svg width="40" height="24" viewBox="0 0 40 24"><rect width="40" height="24" rx="3" fill="#627eea"/><text x="20" y="15" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">ETH</text></svg>
+          </div>
+          <div className="payment-box" title="Tether (USDT)">
+            <svg width="40" height="24" viewBox="0 0 40 24"><rect width="40" height="24" rx="3" fill="#26a17b"/><text x="20" y="15" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">USDT</text></svg>
           </div>
         </div>
 

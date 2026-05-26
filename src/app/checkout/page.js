@@ -38,6 +38,7 @@ export default function CheckoutPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [submittedOrder, setSubmittedOrder] = useState(null);
   const [error, setError] = useState('');
 
   const [couponCode, setCouponCode] = useState('');
@@ -148,9 +149,11 @@ export default function CheckoutPage() {
         return;
       }
 
+      setSubmittedOrder(data);
       clearCart();
       setShowPayPopup(false);
       setSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'instant' });
     } catch (err) {
       setError('Something went wrong. Please try again.');
       setSubmitting(false);
@@ -173,12 +176,86 @@ export default function CheckoutPage() {
         <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
         <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} onCartOpen={() => setCartOpen(true)} />
         <div className="checkout-page-wrap">
-          <div className="success-message">
-            <div className="success-icon">✓</div>
-            <h2 style={{ marginBottom: '10px' }}>Order Submitted!</h2>
-            <p style={{ color: '#666', marginBottom: '20px' }}>Thank you for your purchase. Please contact us on Telegram to receive your course access.</p>
-            <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="btn-auth" style={{ display: 'inline-block', maxWidth: '300px', margin: '0 auto', textAlign: 'center', background: '#2AABEE' }}>
-              <svg viewBox="0 0 24 24" width="18" height="18" style={{ fill: 'white', marginRight: '8px', verticalAlign: 'middle' }}>
+          <div className="success-message" style={{ maxWidth: '600px', width: '100%', margin: '0 auto', padding: '30px 20px' }}>
+            <div className="success-icon" style={{ margin: '0 auto 20px' }}>✓</div>
+            <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>Order Submitted!</h2>
+            
+            {/* Order Details Box */}
+            <div style={{
+              background: '#fcfcfc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '24px',
+              textAlign: 'left',
+              marginBottom: '30px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)'
+            }}>
+              <h3 style={{ borderBottom: '2px solid #edf2f7', paddingBottom: '12px', marginTop: 0, marginBottom: '20px', fontSize: '18px', color: '#1a202c' }}>Order Summary</h3>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px', color: '#4a5568' }}>
+                <span>Order ID:</span>
+                <strong style={{ color: '#1a202c', fontFamily: 'monospace', fontSize: '15px' }}>
+                  {submittedOrder?.id ? `#${submittedOrder.id.slice(-8).toUpperCase()}` : 'Generating...'}
+                </strong>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px', color: '#4a5568' }}>
+                <span>Payment Method:</span>
+                <strong style={{ color: '#1a202c' }}>
+                  {paymentMethod === 'upi' ? 'UPI QR' : 'Crypto (USDT/BTC/ETH/Binance Pay)'}
+                </strong>
+              </div>
+
+              <div style={{ borderBottom: '1px solid #edf2f7', margin: '20px 0' }}></div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', marginBottom: '15px', fontSize: '14px', color: '#2d3748', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <span>Product</span>
+                <span>Total</span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {submittedOrder?.items?.map(item => (
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '14px' }}>
+                    <span style={{ color: '#4a5568', marginRight: '20px', flex: 1 }}>{item.product?.title}</span>
+                    <span style={{ fontWeight: '600', color: '#1a202c' }}>{formatPrice(item.price)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ borderBottom: '1px solid #edf2f7', margin: '20px 0' }}></div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px', color: '#4a5568' }}>
+                <span>Subtotal:</span>
+                <span style={{ fontWeight: '500' }}>{formatPrice(cartTotal)}</span>
+              </div>
+
+              {discountPercent > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px', color: '#38a169' }}>
+                  <span>Discount ({discountPercent}%):</span>
+                  <span style={{ fontWeight: '600' }}>-{formatPrice((cartTotal * discountPercent) / 100)}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '18px', marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #edf2f7', color: '#0b2de6' }}>
+                <span>Total Amount:</span>
+                <span>{formatPrice(finalTotal)}</span>
+              </div>
+            </div>
+
+            <p style={{ 
+              fontWeight: 'bold', 
+              fontSize: '18px', 
+              lineHeight: '1.5',
+              color: '#111', 
+              marginBottom: '25px',
+              textAlign: 'center',
+              padding: '0 10px'
+            }}>
+              Thank you for your purchase. Please Take a screenshot of this page and contact us on Telegram to receive your course access.
+            </p>
+
+            <a href="https://t.me/TheCourseGaleryOfficial" target="_blank" rel="noopener noreferrer" className="btn-auth" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', maxWidth: '320px', margin: '0 auto', textAlign: 'center', background: '#2AABEE', padding: '12px 24px', borderRadius: '8px', fontSize: '16px', fontWeight: '600', textDecoration: 'none', color: 'white', transition: 'background 0.2s' }}>
+              <svg viewBox="0 0 24 24" width="20" height="20" style={{ fill: 'white', marginRight: '10px' }}>
                 <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
               </svg>
               Contact Us on Telegram

@@ -65,8 +65,8 @@ export default function AdminOrdersPage() {
               <tr key={order.id} onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} style={{ cursor: 'pointer' }}>
                 <td style={{ fontSize: '11px' }}>#{order.id.slice(-8).toUpperCase()}</td>
                 <td>
-                  <div style={{ fontWeight: '600' }}>{order.user?.name}</div>
-                  <div style={{ fontSize: '11px', color: '#999' }}>{order.user?.email}</div>
+                  <div style={{ fontWeight: '600' }}>{order.user?.name || order.payerName || 'Guest'}</div>
+                  <div style={{ fontSize: '11px', color: '#999' }}>{order.user?.email || order.email || 'No email'}</div>
                   <div style={{ fontSize: '11px', color: '#0b2de6', marginTop: '4px', background: '#eef2ff', padding: '3px 6px', borderRadius: '4px', display: 'inline-block', fontWeight: '500', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={order.items?.map(i => i.product?.title).join(', ')}>
                     📦 {order.items?.map(i => i.product?.title).join(', ') || 'No products'}
                   </div>
