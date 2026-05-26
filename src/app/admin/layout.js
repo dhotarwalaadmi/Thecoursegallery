@@ -1,13 +1,19 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function AdminLayout({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Close sidebar on navigation change
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -38,7 +44,43 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="admin-layout">
-      <div className="admin-sidebar">
+      {/* Mobile Top Header */}
+      <div className="admin-mobile-header" style={{
+        display: 'none',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 20px',
+        background: '#0f172a',
+        color: 'white',
+        borderBottom: '1px solid #1e293b',
+        position: 'sticky',
+        top: 0,
+        zIndex: 2000,
+      }}>
+        <button 
+          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          ☰
+        </button>
+        <div style={{ fontWeight: '800', color: '#3b82f6', letterSpacing: '0.5px' }}>ADMIN PANEL</div>
+        <div style={{ width: '24px' }}></div> {/* Spacer */}
+      </div>
+
+      {/* Sidebar Overlay */}
+      {mobileSidebarOpen && (
+        <div className="admin-sidebar-overlay" onClick={() => setMobileSidebarOpen(false)}></div>
+      )}
+
+      {/* Sidebar */}
+      <div className={`admin-sidebar ${mobileSidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar-brand">Admin Panel</div>
         <ul className="admin-nav">
           {navItems.map(item => (
@@ -53,6 +95,8 @@ export default function AdminLayout({ children }) {
           ))}
         </ul>
       </div>
+
+      {/* Main Content */}
       <div className="admin-content">
         {children}
       </div>

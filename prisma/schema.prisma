@@ -37,6 +37,7 @@ model Product {
   isFeatured    Boolean           @default(false)
   isPopular     Boolean           @default(false)
   downloadUrl   String            @default("")
+  extraImages   String            @default("")
   categories    ProductCategory[]
   orderItems    OrderItem[]
   createdAt     DateTime          @default(now())

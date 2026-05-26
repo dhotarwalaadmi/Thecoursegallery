@@ -25,6 +25,19 @@ export default function AdminOrdersPage() {
     if (res.ok) fetchOrders();
   };
 
+  const deleteOrder = async (orderId) => {
+    if (!confirm('Are you sure you want to delete this order permanently?')) return;
+    const res = await fetch(`/api/admin/orders?id=${orderId}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      fetchOrders();
+    } else {
+      const data = await res.json();
+      alert(data.error || 'Failed to delete order');
+    }
+  };
+
   const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
 
   return (
@@ -91,6 +104,7 @@ export default function AdminOrdersPage() {
                       <button className="btn-admin btn-admin-reject" onClick={(e) => { e.stopPropagation(); updateStatus(order.id, 'rejected'); }}>Reject</button>
                     </>
                   )}
+                  <button className="btn-admin btn-admin-delete" onClick={(e) => { e.stopPropagation(); deleteOrder(order.id); }}>Delete</button>
                 </td>
               </tr>
               {expandedOrder === order.id && (

@@ -1,18 +1,44 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 
 export default function Header({ onMenuToggle, onCartOpen }) {
-  const [promoVisible, setPromoVisible] = useState(true);
+  const [promoVisible, setPromoVisible] = useState(false);
+  const [promoText, setPromoText] = useState('Only for Today 70.00% Discount on All Order ( Except a few ) . Use Code :SAVE70');
   const { cartCount } = useCart();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('promoDismissed') === 'true') {
+      return;
+    }
+
+    fetch('/api/admin/settings')
+      .then(res => res.json())
+      .then(data => {
+        const enabled = data.promo_enabled !== 'false'; // default true
+        const text = data.promo_text || 'Only for Today 70.00% Discount on All Order ( Except a few ) . Use Code :SAVE70';
+        if (enabled) {
+          setPromoText(text);
+          setPromoVisible(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleDismiss = () => {
+    setPromoVisible(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('promoDismissed', 'true');
+    }
+  };
 
   return (
     <header className="main-header">
       {promoVisible && (
         <div className="top-bar">
-          <span>Only for Today 70.00% Discount on All Order ( Except a few ) . Use Code :SAVE70</span>
-          <span className="dismiss" onClick={() => setPromoVisible(false)}>Dismiss</span>
+          <span>{promoText}</span>
+          <span className="dismiss" onClick={handleDismiss}>Dismiss</span>
         </div>
       )}
       <div className="menu-toggle" onClick={onMenuToggle}>

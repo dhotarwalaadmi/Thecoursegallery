@@ -39,6 +39,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState(null);
+  const [orderSummary, setOrderSummary] = useState(null);
   const [error, setError] = useState('');
 
   const [couponCode, setCouponCode] = useState('');
@@ -150,6 +151,13 @@ export default function CheckoutPage() {
       }
 
       setSubmittedOrder(data);
+      setOrderSummary({
+        subtotal: cartTotal,
+        discountPercent: discountPercent,
+        discountAmount: discountPercent > 0 ? (cartTotal * discountPercent) / 100 : 0,
+        total: finalTotal,
+        paymentMethod: paymentMethod
+      });
       clearCart();
       setShowPayPopup(false);
       setSuccess(true);
@@ -202,7 +210,7 @@ export default function CheckoutPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px', color: '#4a5568' }}>
                 <span>Payment Method:</span>
                 <strong style={{ color: '#1a202c' }}>
-                  {paymentMethod === 'upi' ? 'UPI QR' : 'Crypto (USDT/BTC/ETH/Binance Pay)'}
+                  {orderSummary?.paymentMethod === 'upi' ? 'UPI QR' : 'Crypto (USDT/BTC/ETH/Binance Pay)'}
                 </strong>
               </div>
 
@@ -226,19 +234,19 @@ export default function CheckoutPage() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px', color: '#4a5568' }}>
                 <span>Subtotal:</span>
-                <span style={{ fontWeight: '500' }}>{formatPrice(cartTotal)}</span>
+                <span style={{ fontWeight: '500' }}>{formatPrice(orderSummary?.subtotal || 0)}</span>
               </div>
 
-              {discountPercent > 0 && (
+              {orderSummary?.discountPercent > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px', color: '#38a169' }}>
-                  <span>Discount ({discountPercent}%):</span>
-                  <span style={{ fontWeight: '600' }}>-{formatPrice((cartTotal * discountPercent) / 100)}</span>
+                  <span>Discount ({orderSummary.discountPercent}%):</span>
+                  <span style={{ fontWeight: '600' }}>-{formatPrice(orderSummary.discountAmount)}</span>
                 </div>
               )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '18px', marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #edf2f7', color: '#0b2de6' }}>
                 <span>Total Amount:</span>
-                <span>{formatPrice(finalTotal)}</span>
+                <span>{formatPrice(orderSummary?.total || 0)}</span>
               </div>
             </div>
 

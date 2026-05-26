@@ -39,7 +39,7 @@ export async function POST(request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   try {
-    const { title, description, imageUrl, oldPrice, newPrice, discountBadge, isFeatured, isPopular, downloadUrl, categoryIds } = await request.json();
+    const { title, description, imageUrl, oldPrice, newPrice, discountBadge, isFeatured, isPopular, downloadUrl, categoryIds, extraImages } = await request.json();
 
     if (!title || !imageUrl || !oldPrice || !newPrice || !discountBadge) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 });
@@ -61,6 +61,7 @@ export async function POST(request) {
         isFeatured: isFeatured || false,
         isPopular: isPopular || false,
         downloadUrl: downloadUrl || '',
+        extraImages: extraImages || '',
         categories: categoryIds?.length ? {
           create: categoryIds.map(catId => ({ categoryId: catId }))
         } : undefined,
@@ -85,7 +86,7 @@ export async function PUT(request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   try {
-    const { id, title, description, imageUrl, oldPrice, newPrice, discountBadge, isFeatured, isPopular, downloadUrl, categoryIds } = await request.json();
+    const { id, title, description, imageUrl, oldPrice, newPrice, discountBadge, isFeatured, isPopular, downloadUrl, categoryIds, extraImages } = await request.json();
 
     if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
 
@@ -104,6 +105,7 @@ export async function PUT(request) {
         isFeatured: isFeatured || false,
         isPopular: isPopular || false,
         downloadUrl: downloadUrl || '',
+        extraImages: extraImages || '',
         categories: categoryIds?.length ? {
           create: categoryIds.map(catId => ({ categoryId: catId }))
         } : undefined,

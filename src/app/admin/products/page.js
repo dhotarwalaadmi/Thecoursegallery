@@ -10,6 +10,7 @@ export default function AdminProductsPage() {
     title: '', description: '', imageUrl: '', oldPrice: '', newPrice: '',
     discountBadge: '', isFeatured: false, isPopular: false, downloadUrl: '', categoryIds: []
   });
+  const [extraImages, setExtraImages] = useState([]);
 
   useEffect(() => {
     fetchProducts();
@@ -31,6 +32,7 @@ export default function AdminProductsPage() {
   const openAdd = () => {
     setEditingProduct(null);
     setForm({ title: '', description: '', imageUrl: '', oldPrice: '', newPrice: '', discountBadge: '', isFeatured: false, isPopular: false, downloadUrl: '', categoryIds: [] });
+    setExtraImages([]);
     setShowModal(true);
   };
 
@@ -48,12 +50,15 @@ export default function AdminProductsPage() {
       downloadUrl: product.downloadUrl || '',
       categoryIds: product.categories?.map(c => c.id) || [],
     });
+    setExtraImages(product.extraImages ? product.extraImages.split(',').map(s => s.trim()).filter(Boolean) : []);
     setShowModal(true);
   };
 
   const handleSave = async () => {
     const method = editingProduct ? 'PUT' : 'POST';
-    const body = editingProduct ? { id: editingProduct.id, ...form } : form;
+    const body = editingProduct 
+      ? { id: editingProduct.id, ...form, extraImages: extraImages.join(',') } 
+      : { ...form, extraImages: extraImages.join(',') };
 
     const res = await fetch('/api/admin/products', {
       method,
@@ -166,9 +171,9 @@ export default function AdminProductsPage() {
                     onClick={() => toggleCategory(cat.id)}
                     style={{
                       padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600',
-                      border: form.categoryIds.includes(cat.id) ? '2px solid #0b2de6' : '1px solid #ddd',
-                      background: form.categoryIds.includes(cat.id) ? '#e8f0fe' : 'white',
-                      color: form.categoryIds.includes(cat.id) ? '#0b2de6' : '#555',
+                      border: form.categoryIds.includes(cat.id) ? '2px solid #3b82f6' : '1px solid #ddd',
+                      background: form.categoryIds.includes(cat.id) ? '#eff6ff' : 'white',
+                      color: form.categoryIds.includes(cat.id) ? '#3b82f6' : '#555',
                       cursor: 'pointer',
                     }}
                   >
@@ -176,6 +181,52 @@ export default function AdminProductsPage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div className="form-group" style={{ borderTop: '1px solid #eee', paddingTop: '15px', marginTop: '15px' }}>
+              <label style={{ fontWeight: '700', marginBottom: '10px', display: 'block' }}>Extra Gallery Images (Optional)</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '10px' }}>
+                {extraImages.map((img, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder={`Extra Image URL ${idx + 1}`}
+                      value={img}
+                      onChange={e => {
+                        const next = [...extraImages];
+                        next[idx] = e.target.value;
+                        setExtraImages(next);
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExtraImages(extraImages.filter((_, i) => i !== idx));
+                      }}
+                      style={{
+                        padding: '10px 14px',
+                        background: '#fee2e2',
+                        color: '#991b1b',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="btn-admin-add"
+                onClick={() => setExtraImages([...extraImages, ''])}
+                style={{ margin: 0, padding: '8px 16px', fontSize: '13px', background: '#e2e8f0', color: '#334155' }}
+              >
+                + Add More Images
+              </button>
             </div>
             <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
