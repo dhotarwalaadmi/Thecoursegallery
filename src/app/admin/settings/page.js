@@ -12,6 +12,11 @@ export default function AdminSettingsPage() {
   const [savingPromo, setSavingPromo] = useState(false);
   const [savedPromo, setSavedPromo] = useState(false);
 
+  // Backup & Restore settings
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   useEffect(() => {
     fetch('/api/admin/settings')
       .then(res => res.json())
@@ -70,6 +75,81 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handleExportData = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch('/api/admin/backup');
+      if (!res.ok) throw new Error('Failed to fetch backup');
+      const data = await res.json();
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', url);
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute('download', `course-gallery-backup-${dateStr}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Export failed: ' + e.message);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleImportData = async () => {
+    if (!selectedFile) return;
+    
+    const confirmRestore = window.confirm(
+      "WARNING: Importing data will completely overwrite the existing products, categories, orders, coupons, settings, and users in your database. This action CANNOT be undone. Are you sure you want to proceed?"
+    );
+    if (!confirmRestore) return;
+
+    setImporting(true);
+    try {
+      const fileReader = new FileReader();
+      fileReader.onload = async (event) => {
+        try {
+          const parsedData = JSON.parse(event.target.result);
+          
+          if (!parsedData.products || !parsedData.categories) {
+            throw new Error("Invalid backup file format: Missing 'products' or 'categories' keys.");
+          }
+
+          const res = await fetch('/api/admin/backup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parsedData),
+          });
+
+          const resData = await res.json();
+          if (res.ok) {
+            alert('✓ Database imported and restored successfully!');
+            window.location.reload();
+          } else {
+            alert('Import failed: ' + (resData.error || 'Server error'));
+          }
+        } catch (err) {
+          alert('Failed to parse file: ' + err.message);
+        } finally {
+          setImporting(false);
+        }
+      };
+      fileReader.readAsText(selectedFile);
+    } catch (e) {
+      alert('Import failed: ' + e.message);
+      setImporting(false);
+    }
+  };
+
   return (
     <>
       <h1>Settings</h1>
@@ -121,6 +201,40 @@ export default function AdminSettingsPage() {
         <button className="btn-settings-save" onClick={handleSavePromo} disabled={savingPromo}>
           {savingPromo ? 'Saving...' : savedPromo ? '✓ Saved!' : 'Save Promo'}
         </button>
+      </div>
+
+      <div className="settings-section">
+        <h3>Backup / Restore Data (Export & Import)</h3>
+        <p style={{ color: '#666', fontSize: '13px', marginBottom: '15px' }}>
+          Export all products, categories, coupons, settings, and customer order records to a JSON file. You can import this file later to restore all records.
+        </p>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button 
+            className="btn-admin-add" 
+            onClick={handleExportData} 
+            disabled={exporting}
+            style={{ margin: 0, background: '#10b981' }}
+          >
+            {exporting ? 'Exporting...' : 'Export Data (JSON)'}
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', border: '1px dashed #cbd5e1', padding: '10px 15px', borderRadius: '8px', background: '#f8fafc' }}>
+            <input 
+              type="file" 
+              accept=".json" 
+              onChange={handleFileChange} 
+              style={{ fontSize: '13px' }}
+            />
+            <button 
+              className="btn-admin-add" 
+              onClick={handleImportData} 
+              disabled={importing || !selectedFile}
+              style={{ margin: 0, background: '#ef4444' }}
+            >
+              {importing ? 'Importing...' : 'Import Data (JSON)'}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="settings-section">

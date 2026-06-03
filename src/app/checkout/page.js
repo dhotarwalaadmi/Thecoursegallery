@@ -94,7 +94,7 @@ export default function CheckoutPage() {
         .then(url => setQrCodeUrl(url))
         .catch(err => console.error('QR generation failed:', err));
     }
-  }, [cartTotal, upiId]);
+  }, [finalTotal, upiId]);
 
   const handleProceedToPay = (e) => {
     e.preventDefault();
