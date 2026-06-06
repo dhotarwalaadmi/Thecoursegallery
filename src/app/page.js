@@ -51,7 +51,7 @@ export default function HomePage() {
   const handleSearch = (queryVal) => {
     const q = typeof queryVal === 'string' ? queryVal : searchQuery;
     if (q.trim()) {
-      router.push(`/shop?search=${encodeURIComponent(q.trim())}`);
+      router.push(`/search?query=${encodeURIComponent(q.trim())}`);
     }
   };
 
