@@ -26,13 +26,11 @@ export default function HomePage() {
     fetchPopularProducts();
   }, []);
 
-  const fetchProducts = async (search = '') => {
+  const fetchProducts = async () => {
     try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      const res = await fetch(`/api/products?${params}`);
+      const res = await fetch('/api/products');
       const data = await res.json();
-      setProducts(Array.isArray(data) ? (search ? data : data.filter(p => !p.isPopular)) : []);
+      setProducts(Array.isArray(data) ? data.filter(p => !p.isPopular) : []);
     } catch (e) {
       console.error('Failed to fetch products:', e);
     } finally {
@@ -52,8 +50,9 @@ export default function HomePage() {
 
   const handleSearch = (queryVal) => {
     const q = typeof queryVal === 'string' ? queryVal : searchQuery;
-    setSearchQuery(q);
-    fetchProducts(q);
+    if (q.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(q.trim())}`);
+    }
   };
 
   return (
