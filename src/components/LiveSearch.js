@@ -72,7 +72,7 @@ export default function LiveSearch({
     if (onSearchSubmit) {
       onSearchSubmit(query);
     } else {
-      router.push(`/shop?search=${encodeURIComponent(query)}`);
+      router.push(`/search?query=${encodeURIComponent(query)}`);
     }
   };
 

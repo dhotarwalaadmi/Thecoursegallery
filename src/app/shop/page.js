@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import LiveSearch from '@/components/LiveSearch';
 import Sidebar from '@/components/Sidebar';
@@ -12,6 +12,7 @@ import CurrencyWidget from '@/components/CurrencyWidget';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialCategory = searchParams.get('category') || '';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -22,14 +23,13 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProducts('', initialCategory);
+    fetchProducts(initialCategory);
     fetchCategories();
   }, []);
 
-  const fetchProducts = async (search = '', category = '') => {
+  const fetchProducts = async (category = '') => {
     try {
       const params = new URLSearchParams();
-      if (search) params.set('search', search);
       if (category) params.set('category', category);
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
@@ -53,14 +53,15 @@ export default function ShopPage() {
 
   const handleSearch = (queryVal) => {
     const q = typeof queryVal === 'string' ? queryVal : searchQuery;
-    setSearchQuery(q);
-    fetchProducts(q, activeCategory);
+    if (q.trim()) {
+      router.push(`/search?query=${encodeURIComponent(q.trim())}`);
+    }
   };
 
   const handleCategoryFilter = (slug) => {
     const newCategory = slug === activeCategory ? '' : slug;
     setActiveCategory(newCategory);
-    fetchProducts(searchQuery, newCategory);
+    fetchProducts(newCategory);
   };
 
   return (
