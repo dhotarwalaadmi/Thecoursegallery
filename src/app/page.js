@@ -32,7 +32,7 @@ export default function HomePage() {
       if (search) params.set('search', search);
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
-      setProducts(Array.isArray(data) ? data.filter(p => !p.isPopular) : []);
+      setProducts(Array.isArray(data) ? (search ? data : data.filter(p => !p.isPopular)) : []);
     } catch (e) {
       console.error('Failed to fetch products:', e);
     } finally {
@@ -50,8 +50,10 @@ export default function HomePage() {
     }
   };
 
-  const handleSearch = () => {
-    fetchProducts(searchQuery);
+  const handleSearch = (queryVal) => {
+    const q = typeof queryVal === 'string' ? queryVal : searchQuery;
+    setSearchQuery(q);
+    fetchProducts(q);
   };
 
   return (
